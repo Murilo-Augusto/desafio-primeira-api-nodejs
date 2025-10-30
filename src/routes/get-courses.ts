@@ -1,7 +1,8 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { db } from "../database/client.ts";
-import { courses } from "../database/schema.ts";
+import { courses, enrollments } from "../database/schema.ts";
 import z from "zod";
+import { ilike, asc, type SQL, and, eq, count } from "drizzle-orm";
 
 export const getCoursesRoute: FastifyPluginAsyncZod = async (server) => {
 	server.get(
@@ -10,27 +11,52 @@ export const getCoursesRoute: FastifyPluginAsyncZod = async (server) => {
 			schema: {
 				tags: ["courses"],
 				summary: "Get all courses",
+				querystring: z.object({
+					search: z.string().optional(),
+					orderBy: z.enum(["title"]).optional().default("title"),
+					page: z.coerce.number().optional().default(1),
+				}),
 				response: {
 					200: z.object({
+						total: z.number(),
 						courses: z
 							.object({
 								id: z.uuid(),
 								title: z.string(),
+								enrollments: z.number(),
 							})
 							.array(),
 					}),
 				},
 			},
 		},
-		async () => {
-			const result = await db
-				.select({
-					id: courses.id,
-					title: courses.title,
-				})
-				.from(courses);
+		async (request, reply) => {
+			const { search, orderBy, page } = request.query;
 
-			return { courses: result };
+			const conditions: SQL[] = [];
+
+			if (search) {
+				conditions.push(ilike(courses.title, `%${search}%`));
+			}
+
+			const [result, total] = await Promise.all([
+				db
+					.select({
+						id: courses.id,
+						title: courses.title,
+						enrollments: count(enrollments.id),
+					})
+					.from(courses)
+					.leftJoin(enrollments, eq(enrollments.courseId, courses.id))
+					.where(and(...conditions))
+					.offset((page - 1) * 2)
+					.limit(10)
+					.groupBy(courses.id)
+					.orderBy(asc(courses[orderBy])),
+				db.$count(courses, and(...conditions)),
+			]);
+
+			return reply.send({ total, courses: result });
 		}
 	);
 };
