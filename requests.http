@@ -1,3 +1,13 @@
+POST http://localhost:3333/sessions
+Content-Type: application/json
+
+{
+  "email": "Marcos.Saraiva@yahoo.com",
+  "password": "123456"
+}
+
+###
+
 POST http://localhost:3333/courses
 Content-Type: application/json
 
@@ -11,4 +21,5 @@ GET  http://localhost:3333/courses
 
 ###
 
-GET  http://localhost:3333/courses/9147c7d8-f4b0-43ab-ab34-6c5b82074f5e
+GET  http://localhost:3333/courses/21fd125f-db8a-42e5-a3d7-2b0f3ad3e8c4
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MzlhODAwNy1jOWQ4LTQyMzktYTg3NS04ZTc0NmU0MzdhNjgiLCJyb2xlIjoic3R1ZGVudCIsImlhdCI6MTc2MTg0OTI4MX0.OWNoxckJBxgejYGH-kdYx1gekQ6UrC3vfuDkTm2SDj4

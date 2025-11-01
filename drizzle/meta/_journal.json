@@ -43,6 +43,13 @@
       "when": 1761675899457,
       "tag": "0005_right_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1761833227338,
+      "tag": "0006_puzzling_the_hood",
+      "breakpoints": true
     }
   ]
 }
